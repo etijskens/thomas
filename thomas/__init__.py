@@ -6,15 +6,22 @@
 
 __version__ = '0.0.0'
 
-# example code
-def hello(who: str = 'world') -> str:
-    """'Hello world' method.
+from math import sqrt
 
-    Args:
-        who: whom to say hello to
+def append_w(ll, w):
+    result = []
+    for l in ll:
+        result += [ l + [w], l + [-w] ]
+    return result
 
-    Returns:
-        a string
-    """
-    return f"Hello {who}!"
+def lijst_wortels(a):
+    w = sqrt(a[-1])
+    if len(a) == 1:
+        return [[w], [-w]]
+    else:
+        ww = lijst_wortels(a[:-1])
+        ww =  append_w(ww, w)
+        return ww
 
+if __name__ == "__main__":
+    print(lijst_wortels([2.0,3.0]))

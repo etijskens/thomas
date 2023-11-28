@@ -1,3 +1,3 @@
 # Python package thomas
 
-thomas
+Thomas' Excercises
