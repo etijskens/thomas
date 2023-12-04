@@ -23,5 +23,22 @@ def lijst_wortels(a):
         ww =  append_w(ww, w)
         return ww
 
+import numpy as np
+
+def kwantiseer(a, q):
+    q = np.sort(q)
+    ip = np.searchsorted(q, a)
+    # if isinstance(ip, np.ndarray):
+    #     ip[ip==len(q)] = len(q)-1
+    # else:
+    #     if ip == len(q):
+    #         ip = len(q)-1
+    return q[ip]
+
 if __name__ == "__main__":
-    print(lijst_wortels([2.0,3.0]))
+    # print(lijst_wortels([2.0,3.0]))
+    a = np.linspace(-5,5,21)
+    q = [-3.0,-1.0,-2.0,1.0,3.0,4.0,2.0]
+    print(kwantiseer(a, q))
+    a = -1.2
+    print(kwantiseer(a, q))
