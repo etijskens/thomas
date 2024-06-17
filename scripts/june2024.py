@@ -1,6 +1,7 @@
 import numpy as np
 import random
 
+# OEFENING 1 ###################################################################
 def collage(l:list,M:int,N:int) -> list:
     # Result matrix
     ABCD = np.zeros((M,N),dtype=float)
@@ -64,6 +65,83 @@ def run_collage():
     ABCD = collage([A,B,C,D],4,4)
     print(ABCD)
 
+# OEFENING 2 ###################################################################
+
+def unique_characters(s:str) -> str:
+    """return a string of unique characters"""
+    return ''.join(set(s))
+def verschillende_karakters(a:str, b:str,na=0, nb=0)-> tuple[int,int]:
+    """"""
+    na = verschillende_karakters_a_in_b(unique_characters(a),b)
+    nb = verschillende_karakters_a_in_b(unique_characters(b),a)
+    return na,nb
+
+def verschillende_karakters_a_in_b(a,b,ainb=0):
+    """"""
+    if not a[0] in b:
+        ainb += 1
+    if len(a) == 1:
+        return ainb
+    return verschillende_karakters_a_in_b(a[1:], b, ainb)
+
+def run_verschillende_karakters():
+    a = 'aaa'
+    b = 'abc'
+    print(verschillende_karakters(a, b))
+
+# OEFENING 3 ###################################################################
+
+KAARTEN = '234567890JQKA' # 0 staat voor 10
+def kaartwaarde(k:str) -> int:
+    """bereken de waarde(n) van 1 kaart."""
+    pos = KAARTEN.find(k)
+    waarde = pos + 2
+    if waarde == 14:
+        # een aas geeft waarde 1.
+        waarde = 1
+
+    return waarde
+
+def waarde(kaarten:list)->list:
+    # Het resultaat is vanzelf geordend, maar kan dezelfde waarde meermaals bevatten
+    # in het geval van meerdere azen. dat lossen we op met np.unique
+    return list(np.unique(voeg_toe(kaarten, np.zeros(1, dtype=int))))
+
+def voeg_toe(kaarten, w)->list:
+    w0 = kaartwaarde(kaarten[0])
+    w += w0
+    if w0 == 1: # aas
+        # Hou er rekening mee dat een aas ook voor 11 kan tellen
+        # maak de lijst dubbel zo lang
+        ww = w + 10 # in deze lijst telt de aas voor 11
+        # concatenate w and ww
+        w = np.concatenate((w, ww))
+
+    # w is vanzelf geordend, maar bevat dezelfde waarde meermaals in het geval van meerdere azen.
+    if len(kaarten) == 1:
+        return w
+    return voeg_toe(kaarten[1:], w)
+
+
+def random_kaarten(n:int)->list:
+    return random.choices(KAARTEN, k=n)
+
+
+def run_waarde():
+    hand = random_kaarten(5)
+    hand = ['A', 'A', '7', '3', '5']
+
+    kaartwaarden = []
+    for kaart in hand:
+        kaartwaarden.append(kaartwaarde(kaart))
+    print(hand, kaartwaarden)
+    print(waarde(hand))
+
+################################################################################
+
 if __name__ == '__main__':
-    run_collage()
+    # run_collage()
+    run_verschillende_karakters()
+    # run_waarde()
+
     print('-*# completed #*-')
