@@ -141,7 +141,9 @@ def run_waarde():
 
 if __name__ == '__main__':
     # run_collage()
-    run_verschillende_karakters()
+    # run_verschillende_karakters()
     # run_waarde()
-
+    l = [(1, 'aaa'), (2, 'b'), (-1, 'cccc'), (1, 'd'), (3, 'aa')]
+    print(sorted(l, key=lambda t: len(t[1])))
+    # [(2, 'b'), (1, 'd'), (3, 'aa'), (1, 'aaa'), (-1, 'cccc’)]
     print('-*# completed #*-')
