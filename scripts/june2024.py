@@ -137,13 +137,60 @@ def run_waarde():
     print(hand, kaartwaarden)
     print(waarde(hand))
 
+# examen #######################################################################
+
+def b_from_a(a):
+    # The sum of neighbours is subject to boundary special cases. They are
+    # annoying and prone to errors.
+    # However, if we surround a with zeros in every direction, we can get rid of
+    # those.
+
+    # list comprehension to generate a shape which is larger by 2 in each
+    # dimension, and turn into tuple
+    shape_surrounded = tuple([d+2 for d in a.shape])
+    a_surrounded = np.zeros(shape_surrounded, dtype=int)
+    # Add a to the central part of a_surrounded
+    a_surrounded[1:-1,1:-1] = a
+    print(a)
+    print(a_surrounded)
+
+    # Compute the neighbour sums
+    # the neighbour sum  is np.sum(a_surrounded[i-1:i+1,j-1:j+1]) - a_surrounded[i,j]
+    neighbour_sum = -a_surrounded
+    for i in range(1,a_surrounded.shape[0]):
+        for j in range(1,a_surrounded.shape[1]):
+            neighbour_sum[i,j] += np.sum(a_surrounded[i-1:i+1,j-1:j+1])
+    # remove the surroundings, as they ar no longer needed
+    neighbour_sum = neighbour_sum[1:-1,1:-1]
+    print(neighbour_sum)
+    # Compute b
+    # Indien a[i,j] == 1 en som van de buren van a[i,j] is 2 of 3, dan b[i,j] = 1, anders 0.
+    # Indien a[i,j] == 0 en som van de buren van a[i,j] is 1, dan a[i,j] = 1, anders 0.
+    # Dit is niet helemaal duidelijk, de laatste regel is vermoedelijk fout (hij zet a en niet b).
+    # de conditie van de eerste regel kan element-wise geschreven worden als
+    cond1 = np.logical_and(a==1, np.logical_or(neighbour_sum==2, neighbour_sum==3))
+    # Noteer vervolgens dat True en False intern in Python weergegeven worden als 1 en 0.
+    # De eerste regel zet het resultaat op 1 als de conditie waar is en anders op nul
+    # Het resultaat is dus de conditie omgezet naar int waarden.
+    b = np.int_(cond1)
+    # de tweede regel is onduidelijk en kan dus niet behandeld worden, maar
+    # het principe zou hetzelfde moeten zijn.
+    return b
+
+def run_b_from_a():
+    a = np.random.randint(0, 2, size=(5,5) )
+    b = b_from_a(a)
+
 ################################################################################
 
 if __name__ == '__main__':
     # run_collage()
     # run_verschillende_karakters()
     # run_waarde()
-    l = [(1, 'aaa'), (2, 'b'), (-1, 'cccc'), (1, 'd'), (3, 'aa')]
-    print(sorted(l, key=lambda t: len(t[1])))
-    # [(2, 'b'), (1, 'd'), (3, 'aa'), (1, 'aaa'), (-1, 'cccc’)]
-    print('-*# completed #*-')
+
+    # l = [(1, 'aaa'), (2, 'b'), (-1, 'cccc'), (1, 'd'), (3, 'aa')]
+    # print(sorted(l, key=lambda t: len(t[1])))
+    # # [(2, 'b'), (1, 'd'), (3, 'aa'), (1, 'aaa'), (-1, 'cccc’)]
+    # print('-*# completed #*-')
+
+    run_b_from_a()
