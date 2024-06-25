@@ -155,7 +155,7 @@ def b_from_a(a):
     print(a_surrounded)
 
     # Compute the neighbour sums
-    # the neighbour sum  is np.sum(a_surrounded[i-1:i+1,j-1:j+1]) - a_surrounded[i,j]
+    # the neighbour sum  is np.sum(a_surrounded[i-1:i+2,j-1:j+2]) - a_surrounded[i,j]
     neighbour_sum = -a_surrounded
     for i in range(1,a_surrounded.shape[0]):
         for j in range(1,a_surrounded.shape[1]):
