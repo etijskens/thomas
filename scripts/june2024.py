@@ -165,16 +165,16 @@ def b_from_a(a):
     print(neighbour_sum)
     # Compute b
     # Indien a[i,j] == 1 en som van de buren van a[i,j] is 2 of 3, dan b[i,j] = 1, anders 0.
-    # Indien a[i,j] == 0 en som van de buren van a[i,j] is 1, dan a[i,j] = 1, anders 0.
-    # Dit is niet helemaal duidelijk, de laatste regel is vermoedelijk fout (hij zet a en niet b).
+    # Indien a[i,j] == 0 en som van de buren van a[i,j] is 1, dan b[i,j] = 1, anders 0.
     # de conditie van de eerste regel kan element-wise geschreven worden als
-    cond1 = np.logical_and(a==1, np.logical_or(neighbour_sum==2, neighbour_sum==3))
+    cond1 = np.logical_and(a == 1, np.logical_or(neighbour_sum==2, neighbour_sum==3))
+    # op dezelfde manier is de conditie van de tweede regel:
+    cond2 = np.logical_and(a == 0, neighbour_sum == 1)
+    # beide condities zijn wederzijds exclusief (ze kunnen niet gelijktijdig waar zijn)
+    # Maw, b wordt op 1 gezet als np.logical_or(cond1, cond2) waar is
     # Noteer vervolgens dat True en False intern in Python weergegeven worden als 1 en 0.
-    # De eerste regel zet het resultaat op 1 als de conditie waar is en anders op nul
-    # Het resultaat is dus de conditie omgezet naar int waarden.
-    b = np.int_(cond1)
-    # de tweede regel is onduidelijk en kan dus niet behandeld worden, maar
-    # het principe zou hetzelfde moeten zijn.
+    # Het resultaat is dus de conditie np.logical_or(cond1, cond2) omgezet naar int waarden.
+    b = np.int_(np.logical_or(cond1, cond2))
     return b
 
 def run_b_from_a():
