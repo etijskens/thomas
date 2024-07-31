@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import string
 
 # OEFENING 1 ###################################################################
 def collage(l:list,M:int,N:int) -> list:
@@ -182,7 +183,144 @@ def run_b_from_a():
     b = b_from_a(a)
 
 ################################################################################
+class Groep:
+    def __init__(self, l:list[tuple[str,str]]):
+        self.l = l
+        self.w = {}
+        self.personen = set()
+        for t in self.l:
+            if t[0] != t[1]:
+                self.personen.add(t[0])
+                self.personen.add(t[1])
+                if t[0] not in self.w:
+                    self.w[t[0]] = set()
+                if t[1] not in self.w:
+                    self.w[t[1]] = set()
+                self.w[t[0]].add(t[1])
+                self.w[t[1]].add(t[0])
 
+    def __str__(self):
+        t = [[e, sorted(list(self.w[e]))] for e in self.w]
+        t_sort = sorted(t, key=lambda x: x[0])
+        r = [e[0] + '->' + ''.join(e[1]) for e in t_sort]
+        join_r = ':'.join(r)
+        return f'[{join_r}]'
+
+    def geef_personen(self):
+        return self.personen
+
+    def vriend_van_vriend_0(self, p:str, n:int):
+        if p not in self.w:
+            return set()
+
+        vrienden = list(self.w[p])
+        l = list(self.w[p])
+        t = 1
+
+        while t <= n:
+            if t != 1:
+                vrienden = nieuwe_v
+            nieuwe_v = []
+            for v in vrienden:
+                for e in self.w[v]:
+                    if e != p:
+                        nieuwe_v.append(e)  # lijst maken met de volgende vrienden
+            l.extend(nieuwe_v)
+            t += 1  # nadat je alle tussenpersonen hebt overlopen, begin je met de volgende
+        return set(l)
+
+    def vriend_van_vriend(self, p:str, n:int=0):
+        if p not in self.w:
+            return set()
+
+        else:
+            vrienden = set(self.w[p]) # directe vrienden
+            for i in range(n):
+                nieuwe_vrienden = set()
+                for v in vrienden:
+                    nieuwe_vrienden.update(self.w[v])
+                vrienden.update(nieuwe_vrienden)
+            return vrienden
+
+    def zijn_bevriend(self,p1,p2):
+        return p1 == p2 or p2 in self.w[p1]
+    def vind_groepjes(self):
+        for p1 in self.w:
+            pv = list(self.w[p1])
+            n = len(pv)
+            is_groepje = True
+            for i in range(n):
+                for j in range(i+1,n):
+                    if not self.zijn_bevriend(pv[i], pv[j]):
+                        is_groepje = False
+                        break
+            if is_groepje:
+                # eerste voorwaarde is voldaan, alle personen kennen elkaar
+                # tweede voorwaarde is niemand kent iemand anders
+                for p2 in pv:
+                    p2v = list(self.w[p2])
+                    for p3 in p2v:
+                        if not self.zijn_bevriend(p3,p1):
+                            # p2 kent p3, maar die kent p1 niet, voorwaarde twee geldt niet
+                            is_groepje = False
+                            break
+                if is_groepje:
+                    # maak een lijst met het groepje, p1 + zijn vrienden, en print ze
+                    l = [p1]
+                    l.extend(pv)
+                    print(l)
+
+def run_vriend_van_vriend():
+    n = random.randint(10,20)
+    input = set()
+    for i in range(n):
+        t = (random.choice(string.ascii_uppercase), random.choice(string.ascii_uppercase) )
+        input.add(t)
+    g = Groep(input)
+    print(g.personen)
+    print(g.w)
+    for p in g.personen:
+        print(p, g.vriend_van_vriend(p))
+        print(p, g.vriend_van_vriend(p,1))
+        print(p, g.vriend_van_vriend(p,2))
+
+def run_vind_groepjes():
+    n = random.randint(5, 7)
+    input = set()
+    for i in range(n):
+        t = (random.choice(string.ascii_uppercase), random.choice(string.ascii_uppercase))
+        input.add(t)
+    g = Groep(input)
+    print(g.personen)
+    print(g.w)
+    g.vind_groepjes()
+################################################################################
+"""
+Programmeer de klasse FlipLijst, waarbij elk object van deze klasse een lijst l van gehele getallen bijhoudt (deze lijst kan dubbels bevatten).
+Programmeer in deze klasse:
+een constructor met 1 argument, namelijk de lijst gehele getallen waarvan hierboven sprake
+de operator *= met als rechterargument een natuurlijk getal (eventueel 0). De werking van de operator is als volgt:
+indien het rechteroperand een geldige index i in de lijst l voorstelt, dan wordt de getallenlijst van het object als volgt aangepast:
+de kop van de lijst tot net voor index i blijft ongewijzigd
+de staart van de lijst vanaf index i (inbegrepen) wordt omgekeerd
+Indien het rechteroperand dus de waarde 0 heeft, wordt de volledige lijst omgekeerd.
+indien het rechteroperand geen geldige index in l voorstelt, dan blijft het object ongewijzigd (en heeft de operator dus geen effect)
+de methode __str__() levert de stringgedaante van elk element van de getallenlijst op, gescheiden door dubbele punten (dus door :) en het geheel tussen vierkante haakjes.
+ 
+Herneem je oplossing uit deel A. Programmeer bijkomend de methode sorteer_sequentie() (zonder argumenten). Deze methode geeft een lijst van gehele getallen r terug, maar laat de lijst van het object ongewijzigd.
+Deze lijst r moet zodanig geconstrueerd zijn dat na uitvoering van onderstaand code-fragment
+flips = f.sorteer_sequentie()
+for e in flips:
+    f *= e
+de lijst van de FlipLijst f van klein naar groot gesorteerd is.
+Zorg hierbij dat je algoritme voldoende efficiënt is om binnen de tijdslimiet door Dodona opgelegd tot een resultaat te komen (alle mogelijke sequenties van alle mogelijke flips aflopen is dus geen goed idee).
+"""
+class FlipLijst:
+    def __init__(self, l:list[int]):
+        self.l = l
+
+
+################################################################################
 if __name__ == '__main__':
     # run_collage()
     # run_verschillende_karakters()
@@ -193,4 +331,6 @@ if __name__ == '__main__':
     # # [(2, 'b'), (1, 'd'), (3, 'aa'), (1, 'aaa'), (-1, 'cccc’)]
     # print('-*# completed #*-')
 
-    run_b_from_a()
+    # run_b_from_a()
+    # run_vriend_van_vriend()
+    run_vind_groepjes()
