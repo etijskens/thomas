@@ -321,16 +321,141 @@ class FlipLijst:
 
 
 ################################################################################
+"""Zoek het verschil"""
+def zoek_het_verschil(a,b):
+    """In deze eenvoudige versie is de omkadering met 255 het HELE gebied waar
+    beide tabellen identiek zijn (dus niet een kadertje van 1 lijn). Ik ben niet
+    geheel zeker of dat de bedoeling is."""
+    frame = 255*np.ones_like(a)
+    c = np.where(a == b, frame, a)
+    d = np.where(a == b, frame, b)
+    return c, d
+
+def zoek_het_verschil2(a,b):
+    """In deze versie is de omkadering met 255 slechts 1 entry dik.
+    Bij deze oplossing zijn niet noodzakelijke ALLE elementen in de rechthoek verschillend
+    Ik ben niet geheel zeker of dat de bedoeling is."""
+    c = a.copy()
+    d = b.copy()
+    # vind de linkerbovenhoek (i0,j0) en de rechteronderhoek (ii1,j1) van de verschillende rechthoek
+    # die is de kleinste rechthoek die alle verschillen omsluit. Niet ALLE element in de rechthoek zijn
+    # noodzakelijk verschillend.
+    verschillende_locaties = np.argwhere(a != b) # array met de verschillende locaties
+    i0 = verschillende_locaties[:,0].min()
+    i1 = verschillende_locaties[:,0].max()
+    j0 = verschillende_locaties[:,1].min()
+    j1 = verschillende_locaties[:,1].max()
+    # teken de kader
+    c[i0 - 1:i1 + 1, j0 - 1] = 255
+    c[i0 - 1:i1 + 1, j1 + 1] = 255
+    c[i0 - 1, j0 - 1:j1 + 1] = 255
+    c[i1 + 1, j0 - 1:j1 + 2] = 255 # let op de 2
+    d[i0 - 1:i1 + 1, j0 - 1] = 255
+    d[i0 - 1:i1 + 1, j1 + 1] = 255
+    d[i0 - 1, j0 - 1:j1 + 1] = 255
+    d[i1 + 1, j0 - 1:j1 + 2] = 255 # let op de 2
+
+    return c, d, i0,i1,j0,j1
+def zoek_het_verschil_stefan(a, b):
+    c = a.copy()
+    d = b.copy()
+    l = np.where(a - b != 0)  # voorbeeld output: (array([0, 0, 1, 1]), array([1, 2, 1, 2]))
+
+    # rekening houden dat op rand sommige punten gelijk kunnen zijn, dus min/max nemen
+    # >>> a
+    # array([[1, 0, 3],
+    #        [0, 4, 3],
+    #        [5, 6, 7]])
+    # >>> b
+    # array([[1, 2, 3],
+    #        [2, 4, 3],
+    #        [5, 6, 7]])
+    # >>> b-a
+    # array([[ 0,  2,  0],
+    #        [ 2,  0,  0],
+    #        [ 0,  0,  0]])
+    # >>> np.where(b-a != 0)
+    # (array([0, 1]), array([1, 0]))
+
+    # minr = min(l[0][0], l[0][-1]) - 1
+    # maxr = max(l[0][0], l[0][-1]) + 1
+    # mink = min(l[1][0], l[1][-1]) - 1
+    # maxk = max(l[1][0], l[1][-1]) + 1
+
+    ### DIT WERKT NIET! ###
+    minr = min(l[0]) - 1
+    maxr = max(l[0]) + 1
+    mink = min(l[1]) - 1
+    maxk = max(l[1]) + 1
+    # print(minr, maxr, mink, maxk)
+    c[[minr, maxr], mink:maxk + 1] = 255  # +1 bij minX:maxX, want anders 1 te weinig
+    c[minr:maxr + 1, [mink, maxk]] = 255
+    d[[minr, maxr], mink:maxk + 1] = 255
+    d[minr:maxr + 1, [mink, maxk]] = 255
+
+    return c, d
+
+def generate_a_b(m,n):
+    """Genereer twee tabellen met shape (m,n) waarin een rechthoek verschilt die de randen niet raakt.
+    Alle elementen verschillen in de rechthoek."""
+    a = np.random.randint(0,201,(m,n))
+    assert (0 <= a).all()
+    assert (a <= 200).all()
+
+    b = a.copy()
+
+    # genereer i0 en i1, vertikale   onder en bovengrens van de rechthoek
+    # genereer j0 en j1, horizontale onder en bovengrens van de rechthoek
+    # zodat a[i0:i1+1,j0:j0+1] != b[i0:i1+1,j0:j0+1]
+    # 0 < i0 <= i1 < m - 1 (-1 want de rand mag niet verschillen)
+    # 0 < j0 <= j1 < n - 1 (-1 want de rand mag niet verschillen)
+
+    i0 = np.random.randint(1, m - 1) # m-1 is exclusief, dus i0 < m-1
+    i1 = np.random.randint(i0, m - 1)     # m   is exclusief, dus i1 < m
+    print(f"{i0=}, {i1=}")
+    assert 0 < i0 <= i1 < m - 1
+    j0 = np.random.randint(1, n - 1)
+    j1 = np.random.randint(j0, n - 1)
+    print(f"{j0=}, {j1=}")
+    assert 0 < j0 <= j1 < n -1
+
+    b[i0:i1+1,j0:j1+1] = (a[i0:i1+1,j0:j1+1] + 1) % 200
+    assert (0 <= b).all()
+    assert (b <= 200).all()
+
+    print(f"{a=}")
+    print(f"{b=}")
+
+    return a, b, i0, i1, j0, j1
+
+def run_generate_a_b():
+    a, b = generate_a_b(10,15)
+
+def run_zoek_het_verschil():
+    a, b, i0, i1, j0, j1 = generate_a_b(10,15)
+    # c,d = zoek_het_verschil_stefan(a, b)
+    # test oplossing 1
+    c,d = zoek_het_verschil(a,b)
+    assert np.all(c[i0:i1+1,j0:j1+1] != d[i0:i1+1,j0:j1+1])
+    assert np.all(c[0:i0, :] == d[0:i0, :])
+    assert np.all(c[i1+1:, :] == d[i1+1:, :])
+    assert np.all(c[:,0:j0] == d[:,0:j0])
+    assert np.all(c[:,j1+1:] == d[:,j1+1:])
+    #test oplossing 2
+    c,d,I0,I1,J0,J1 = zoek_het_verschil2(a, b)
+    print(c)
+    print(d)
+    assert i0 == I0
+    assert i1 == I1
+    assert j0 == J0
+    assert j1 == J1
+    assert np.all(c[i0:i1+1,j0:j1+1] != d[i0:i1+1,j0:j1+1])
+    assert np.all(c[0:i0, :] == d[0:i0, :])
+    assert np.all(c[i1+1:, :] == d[i1+1:, :])
+    assert np.all(c[:,0:j0] == d[:,0:j0])
+    assert np.all(c[:,j1+1:] == d[:,j1+1:])
+
+################################################################################
 if __name__ == '__main__':
-    # run_collage()
-    # run_verschillende_karakters()
-    # run_waarde()
-
-    # l = [(1, 'aaa'), (2, 'b'), (-1, 'cccc'), (1, 'd'), (3, 'aa')]
-    # print(sorted(l, key=lambda t: len(t[1])))
-    # # [(2, 'b'), (1, 'd'), (3, 'aa'), (1, 'aaa'), (-1, 'cccc’)]
-    # print('-*# completed #*-')
-
-    # run_b_from_a()
-    # run_vriend_van_vriend()
-    run_vind_groepjes()
+    # run_generate_a_b()
+    run_zoek_het_verschil()
